@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: INICIS for WooCommerce
-Plugin URI: http://www.codemshop.com
-Description: 엠샵에서 개발한 KG 이니시스의 워드프레스 우커머스 이용을 위한 결제 시스템 플러그인 입니다. KG INICIS Payment Gateway Plugin for Wordpress WooCommerce that developed by MShop.
+Plugin Name: INICIS for WooCommerce 
+Plugin URI: http://www.seoulwebdesign.com
+Description: KG INICIS WooCommerce Plugin
 Version: 1.0.3
-Author: CODEM(c)
-Author URI: http://www.codemshop.com
+Author: SWD Version
+Author URI: http://www.seoulwebdesign.com
 */
 
 //소스에 URL로 직접 접근 방지
@@ -20,7 +20,7 @@ add_action('woocommerce_view_order', 'mypage_refund_request', 6);
 add_action('wp_head', 'add_header_meta_for_ie');	//IE10 결제 처리용 메타 태그 추가
 add_action('add_meta_boxes', 'add_meta_boxes_inicis');
 add_action( 'wp_ajax_codem_order_cancelled', 'ajax_codem_order_cancelled_callback' );
-register_deactivation_hook( __FILE__, 'inicis_pg_deactivate' );
+
 
 /**
  * Inicis Order Cancel Button View Function
@@ -257,36 +257,7 @@ function mypage_refund_request($order) {
     } 
 }
 
-/**
- * 플러그인 비활성화 처리
- * Plugin Deactive Process
- *
- * @return void
- * @author Alan 
- */
-function inicis_pg_deactivate(){
-	$key = get_option('_codem_inicis_activate_key');
-	header("Content-Type: text/html;charset=utf-8"); 
-    $http_url = base64_decode("aHR0cDovL3d3dy53b3JkcHJlc3NzaG9wLmNvLmtyL2RlYWN0aXZhdGUtcmVnaXN0ZXI=");
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $http_url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Accept-Language: ko"));
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS,  array('action'=>'deactivate-register', 'activate_key' => $key));
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    $httpResponse = curl_exec($ch);
-	delete_option('_codem_inicis_activate_key');
-	curl_close($ch);
-		
-	if($httpResponse == "1") {
-		return true;	
-	} else {
-		return false;
-	}
-}
+
 
 /**
  * 이니시스 IE10 호환 코드 추가
@@ -482,7 +453,7 @@ function woocommerce_inicis_pg_init(){
      * @author Alan
      */
     class WC_Gateway_Inicis extends WC_Payment_Gateway{
-    	public $activate_check;
+    //	public $activate_check;
 		
         public function __construct(){
             $this->id = 'inicis'; 											//결제 메소드 아이디 값
@@ -500,7 +471,7 @@ function woocommerce_inicis_pg_init(){
             $this->err_mid = false;
             $this->method_title = __('이니시스 결제', 'codem_inicis');			//결제 메소드 제목(title)
 			$this->method_description = __('이니시스 결제 대행 서비스를 사용하시는 분들을 위한 설정 페이지입니다. 실제 서비스를 하시려면 키파일을 이니시스에서 발급받아 설치하셔야 정상 사용이 가능합니다.', 'codem_inicis');  //결제 메소드 간단한 설명
-			$this->activate_check = $this->is_valid_for_key();
+			//$this->activate_check = $this->is_valid_for_key();
 			//사용하는 스크립트 및 스타일 등록
 			add_action( 'wp_head', array($this, 'codem_assets'));
 			add_action( 'admin_head', array($this, 'codem_assets'));			
@@ -520,8 +491,8 @@ function woocommerce_inicis_pg_init(){
 				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_inicis_admin_refund' ) );       //관리자 환불표시 옵션 저장
 				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_inicis_redirect_order_status' ) );       //결제 완료시 주문 상태 저장
 				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_inicis_redirect_order_status_refunded' ) );       //결제 완료시 주문 상태 저장
-				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_activate' ) );		//기타 옵션 저장
-				add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_activate_check' ), 10 );		//기타 옵션 저장
+				//add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_activate' ) );		//기타 옵션 저장
+				//add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_activate_check' ), 10 );		//기타 옵션 저장
             } else {
                 add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_admin_options' ) );
     			add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_inicis_gopaymethod' ) );		//결제허용 수단 설정값 저장
@@ -531,8 +502,8 @@ function woocommerce_inicis_pg_init(){
                 add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_inicis_admin_refund' ) );        //관리자 환불표시 옵션 저장
                 add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_inicis_redirect_order_status' ) );        //결제 완료시 주문 상태 저장
                 add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_inicis_redirect_order_status_refunded' ) );        //결제 완료시 주문 상태 저장
-                add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_activate' ) );		//기타 옵션 저장
-                add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_activate_check' ), 10 );		//기타 옵션 저장
+               // add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_activate' ) );		//기타 옵션 저장
+               // add_action( 'woocommerce_update_options_payment_gateways', array( $this, 'process_activate_check' ), 10 );		//기타 옵션 저장
 	        }
             add_action('woocommerce_receipt_inicis', array($this, 'receipt_page'));			//지불 처리 페이지 액션ocess 처리시
             add_filter('woocommerce_payment_complete_order_status', array($this, 'set_payment_complete_order_status'), 15, 2);      //주문 완료 상태 변경 필터
@@ -571,106 +542,8 @@ function woocommerce_inicis_pg_init(){
 			 wp_enqueue_style( 'codem_inicis_style' );
 		}
 
-	    /**
-	     * 플러그인 인증 정보 확인 및 처리
-	     *
-	     * @access public
-		 * @author Alan
-	     * @return bool
-	     */
-		function process_activate(){
-			$http_url = base64_decode("aHR0cDovL3d3dy53b3JkcHJlc3NzaG9wLmNvLmtyL2FjdGl2YXRlLXJlZ2lzdGVy");
-			if(empty($_POST['p_activate_key'])) { return false; }
-			if(empty($_POST['p_email'])) { return false; }
-		    $ch = curl_init();
-		    curl_setopt($ch, CURLOPT_URL, $http_url);
-		    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Accept-Language: ko"));
-		    curl_setopt($ch, CURLOPT_POST, 1);
-		    curl_setopt($ch, CURLOPT_POSTFIELDS,  array('action'=>'activate-register', 'activate_key' => $_POST['p_activate_key'], 'email' => $_POST['p_email'], 'homeurl' => home_url()));
-		    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-		    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		    
-		    $httpResponse = curl_exec($ch);
-			if($httpResponse == "1") {
-				curl_close($ch);	
-				$this->activate_check = true;
-				update_option('_codem_inicis_activate_key', $_POST['p_activate_key']);
-				return true;	
-			} else {
-				curl_close($ch);
-				$this->activate_check = false;
-				return false;
-			}	
-		}
-
-	    /**
-	     * 상점 아이디 체크
-	     *
-		 * @author Alan
-	     * @return bool
-	     */
-		function check_mid($mid){
-			$this->err_mid = false;	
-			if(!empty($mid)) {
-				$tmpmid = substr($mid, 0, 3);
-				if(!($tmpmid == base64_decode("SU5J") || $tmpmid == base64_decode("Q09E"))) {
-					$tmparr = get_option('woocommerce_inicis_settings');	
-					$tmparr['merchant_id'] = base64_decode('SU5JcGF5VGVzdA==');
-					update_option('woocommerce_inicis_settings', $tmparr);
-					$this->err_mid = true;
-
-					$_SESSION['err_mid'] = true;
-					return false; 
-				}
-				$_SESSION['err_mid'] = false;
-				return true;
-			}
-			$this->err_mid = true;
-			return false;	
-		}
-
-	    /**
-	     * 플러그인 사용자 정보 갱신 처리
-	     *
-	     * @access public
-		 * @author Alan
-	     * @return bool
-	     */
-		function process_activate_check(){
-			$http_url = base64_decode("aHR0cDovL3d3dy53b3JkcHJlc3NzaG9wLmNvLmtyL2FjdGl2YXRlLXJlZ2lzdGVy");
-			$mid = '';
-			if(empty($_POST['woocommerce_inicis_merchant_id'])) {
-				return false; 
-			} else {
-				$mid = trim($_POST['woocommerce_inicis_merchant_id']);
-				if(!$this->check_mid($mid)) {
-					return false;
-				} 
-			}
-			$tmp_key = get_option('_codem_inicis_activate_key');
-			if(empty($tmp_key)) { return false; }
-			
-		    $ch = curl_init();
-		    curl_setopt($ch, CURLOPT_URL, $http_url);
-		    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Accept-Language: ko"));
-		    curl_setopt($ch, CURLOPT_POST, 1);
-		    curl_setopt($ch, CURLOPT_POSTFIELDS,  array('action'=>'activate-register-mid', 'activate_key' => $tmp_key, 'mid' => $mid, 'homeurl' => home_url()));
-		    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-		    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		    
-		    $httpResponse = curl_exec($ch);
-			if($httpResponse == "1") {
-				curl_close($ch);	
-				$this->activate_check = true;
-			} else {
-				curl_close($ch);
-				$this->activate_check = false;
-			}
-		}
+	    
+	   
 
 	    /**
 	     * 이니시스 설정 패널
@@ -687,14 +560,14 @@ function woocommerce_inicis_pg_init(){
 			}	
 
 			if( isset($_SESSION['err_mid']) && $_SESSION['err_mid'] == true ) {
-				echo '<div id="message" class="error fade"><p><strong>상점 아이디가 정확하지 않습니다. 상점 아이디를 확인하여 주세요. 문제가 계속 된다면 메뉴얼 또는 <a href="http://www.wordpressshop.co.kr" target="_blank">http://www.wordpressshop.co.kr</a> 사이트에 문의하여 주세요. </strong></p></div>';
+				echo '<div id="message" class="error fade"><p><strong>MID Error</p></strong></div>';
 			}
 
 			?>
 			<h3><?php echo $this->method_title; echo $tip;?></h3>
 
 			<?php
-			if( !$this->activate_check ) {
+			if( $this->activate_check ) {
 			?>	
 	            <style type="text/css" >
 	            	.submit input.button-primary { 
@@ -753,18 +626,7 @@ function woocommerce_inicis_pg_init(){
 						return false;
 					}
 	            </script>
-	            <div class="inline error">
-	            	<p><strong><?php _e( '플러그인 인증 필요', 'codem_inicis' ); ?></strong><br/><?php _e( 'http://wordpressshop.co.kr 사이트에서 인증키를 발급받아 등록하여 주세요.<br/>플러그인을 비활성화 할경우 다시 재인증 받으셔야 합니다.', 'codem_inicis' ); ?></p>
-	            	<p>
-	            		<form name="frm_activate" id="frm_activate" method="post" action="" enctype="multipart/form-data" onsubmit="return frmcheck()">
-		            		<label style="width: 120px;display: inline-block;">회원 이메일 주소</label><input type="text" name="p_email" id="p_email" value=""><br/>
-		            		<label style="width: 120px;display: inline-block;">플러그인 인증키</label><input type="text" name="p_activate_key" id="p_activate_key" value=""><br/>
-		            		<input type="hidden" name="siteurl" value="<?php echo home_url(); ?>"><br/>
-		            		<input type="submit" class="button-primary" value="인증하기">
-		            		<?php wp_nonce_field('woocommerce-settings') ?>
-	            		</form>
-	            	</p>
-	            </div>
+	      
 
 	        <?php    
 			} else {
@@ -775,8 +637,8 @@ function woocommerce_inicis_pg_init(){
 				<?php $this->generate_settings_html(); ?>
 					<tr>
 						<th scope="row"><label for="activate-key">플러그인 개인 인증키</label></th>
-						<td><span style="font-weight: bold;font-size:16px;"><?php echo get_option('_codem_inicis_activate_key'); ?></span><br/>
-							<span class="description">인증상태 : <?php if($this->is_valid_for_key()) { echo "정상"; } else { echo "비인증상태"; } ?></span></td>
+						<td><span style="font-weight: bold;font-size:16px;"></span><br/>
+							
 					</tr>
 				</table>
 			<?php							 
@@ -830,86 +692,11 @@ function woocommerce_inicis_pg_init(){
 					<a class="welcome-panel-close" style="padding-top:15px;" href="<?php echo $admin_noti_url; ?>"><?php echo $admin_noti_txt; ?></a>
 			        <div class="tab_contents" style="line-height:16px;<?php echo $css; ?>">
 			            <ul>
-		    <?php
-		        
-		        //XML 형태로 넘어오는 Feed 값 가져오기
-		        $url = "http://www.wordpressshop.co.kr/category/pg_notice/feed";
-				//$url = "http://www.codemshop.com/category/notice/feed";  
-		            
-		        $curl = curl_init();  
-		        curl_setopt($curl, CURLOPT_URL, $url);  
-		        curl_setopt($curl, CURLOPT_HEADER, 0);  
-		        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);  
-		        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);  
-		        $xml = curl_exec($curl);  
-		        curl_close($curl); 
-		        
-		        $xmldata = new SimpleXMLElement($xml);
-		        
-		        //Feed XML 데이터 출력
-		        $limit = 5; //가져올 갯수 지정
-		        $maxitem = count($xmldata->channel->item);
-		        
-				if($maxitem <= 0) {
-					echo '
-					<li style="font-size:12px;">
-						<span>아직 공지사항이 없거나 데이터를 가져오지 못했습니다. 페이지를 새로고침 하여 주시기 바랍니다.</span>
-					</li>';
-				}
-				
-		        for($i=0;$i<$maxitem;$i++)
-		        {
-		            if($i < $limit){
-		                $item = $xmldata->channel->item[$i];
-		                echo '<li style="font-size: 13px;font-weight: bold;">
-		                        <span class="label blue"><i class="icon-bullhorn"></i></span>
-		                        <span class="text_gray italic">'.date("Y-m-d", strtotime($item->pubDate)).'</span> | 
-		                        <a href="'.$item->link.'" target="_blank">'.$item->title.'</a> 
-		                      </li>';    
-		            }
-		        }
-		    ?>
-			            </ul>
-			        </div>
-				</div>
-			</div>
+		  
 			<?php	
 		}
 
-        /**
-         * 이니시스 Key Check
-         *
-         * @return bool
-         * @author Alan
-         */
-		function is_valid_for_key(){
-			$key = get_option('_codem_inicis_activate_key');
-			if(empty($key)) {
-				return false;
-			}		
-		    $http_url = base64_decode("aHR0cDovL3d3dy53b3JkcHJlc3NzaG9wLmNvLmtyL2FjdGl2YXRlLWNoZWNr"); 
-		    $ch = curl_init();
-		    curl_setopt($ch, CURLOPT_URL, $http_url);
-		    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Accept-Language: ko"));
-		    curl_setopt($ch, CURLOPT_POST, 1);
-		    curl_setopt($ch, CURLOPT_POSTFIELDS,  array('action'=>'activate-check', 'activate_key' => $key ) );
-		    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-		    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		    
-		    $httpResponse = curl_exec($ch);
-			if($httpResponse == "1") {
-				curl_close($ch);	
-				$this->activate_check = true;
-				return true;	
-			} else {
-				curl_close($ch);
-				$this->activate_check = false;
-				return false;
-			}
-		}
-
+       
 	    /**
 	     * 상점에서 사용하는 통화를 지원하는 지 여부 체크
 		 * (기본적으로 이니시스는 달러와 원화만 사용가능합니다)

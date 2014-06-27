@@ -1,12 +1,12 @@
 /********************************************
- * INICIS - for WooCommerce, with CODEM(c)
+ * INICIS - for WooCommerce
  * JS File
  ********************************************/
 
 /***** Payment Setting (wp-admin) Part *****/
 
 function onClickInicis() { 
-	window.open("http://landing.inicis.com/landing/application/application01_2.php?cd=hostinglanding&product=codemstory", "초기등록비 무료 지원 가입신청" ); 
+	window.open("http://www.seoulwebdesign.com/inicis", "Make INICIS account" ); 
 } 
 
 function onClickInicis2() { 
